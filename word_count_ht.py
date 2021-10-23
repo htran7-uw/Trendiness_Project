@@ -1,5 +1,8 @@
 import re
 import pandas as pd
+import numpy as np 
+
+final=[]
 
 with open('Tweets.txt') as file:
 	lines = file.readlines()
@@ -29,4 +32,14 @@ for i, words in enumerate(tweets[0]):
 	new_words = re.sub(r'https://t.co/\w+', '', new_words)
 	new_words = re.sub(r'@[a-z0-9\_]+','',new_words)
 	final_list = re.findall(r"[^rt](?!'.*')\b[\w']+\b", new_words)
-	print(final_list)
+	final.extend(final_list)
+	
+
+keys, values = np.unique(final, return_counts=True)
+
+values=values.tolist()
+keys=keys.tolist()
+
+res = {keys[i]: values[i] for i in range(len(keys))}
+
+print(res)
