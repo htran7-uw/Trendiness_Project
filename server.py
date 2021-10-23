@@ -48,7 +48,7 @@ def connect_to_endpoint(url):
                 timestamp = datetime.datetime.strptime(timestamp,'%Y-%m-%dT%H:%M:%S.%f%z')
                 timestamp = datetime.datetime.strftime(timestamp, '%Y-%m-%d-%H-%M-%S')
                 text = json_response['data']['text']
-                each_tweet = [timestamp,',', text,'\n','\n']
+                each_tweet = [timestamp,',', text, '\n']
                 txt_file.writelines(each_tweet)
             else:
                 pass
