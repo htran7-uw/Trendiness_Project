@@ -1,28 +1,47 @@
-# NOT COMPLETE
-import requests
-import os
-import json
+import re
 import pandas as pd
-import datetime
+import numpy as np 
 import argparse  
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('filename')
 args = parser.parse_args()
+
+final=[]
+
 with open(args.filename) as file:
-	lines=file.readlines()
+	lines = file.readlines()
 
-df = pd.DataFrame(lines)
-df['date'], df['text'] = df.iloc[0].str.split(',',1).str
-print(df['date'])
-print(df['text'])
+tweets = pd.DataFrame(lines)
+#print(tweets.shape)
+#print(tweets[0][1])
+tweets_empty = []
+for i, words in enumerate(tweets[0]):
+	if words == '':
+		tweets_empty.append(i)
+'''Check for empty lists'''
+try:
+	tweets.drop([tweets_empty],axis = 0, inplace=True)
+except KeyError:
+	pass
+tweets.dropna(inplace = True)
 
-def main(phrase):
-    count = 0
-    for i in df['text']:
-       words = i.split(' ')
-       for word in words:
-           if phrase == word:
-               count = count + 1
-    print('This phrase occurs ' + str(count) + ' times.')
+'''Break down the tweet and parse words only'''
+for i, words in enumerate(tweets[0]):
+	words = words.strip().lower()
+	new_words = re.sub(r'[\d{4}\-\d{2}\-\d{2}\-\d{2}\-\d{2}\-\d{2},]','',words)
+	new_words = re.sub(r'https://t.co/\w+', '', new_words)
+	new_words = re.sub(r'@[a-z0-9\_]+','',new_words)
+	final_list = re.findall(r"[^rt](?!'.*')\b[\w']+\b", new_words)
+	for i, word in enumerate(final_list):
+		final_list[i] = str(word.strip())
+	final.extend(final_list)
+
+'''Compute unique words and their corresponding frequencies'''
+keys, values = np.unique(final, return_counts=True)
+values=values.tolist()
+keys=keys.tolist()
+
+res = {keys[i]: values[i] for i in range(len(keys))}
+for count in res.items():
+	print(count)
