@@ -37,3 +37,7 @@ for i, words in enumerate(tweets[0]):
 
 keys, values = np.unique(final, return_counts=True)
 print(keys)
+keys=keys.tolist()
+
+print("There are", len(keys), "unique words in Tweets.txt.")
+
