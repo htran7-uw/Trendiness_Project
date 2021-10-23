@@ -19,9 +19,14 @@ except KeyError:
 	pass
 tweets.dropna(inplace = True)
 for i, words in enumerate(tweets[0]):
-	print(words.strip())
-	word_list = re.split(r"\s+", words.strip())
-	print(word_list)
-
-# for i in tweets[0]:
-# 	print(i)
+	words = words.strip().lower()
+	print(words)
+	# word_list = re.split(r"[\b\W\b]+", words.strip().lower())
+	# #word_list = word_list.drop()
+	# print(word_list)
+	#word_list = re.split(r'.', words.strip())
+	new_words = re.sub(r'[\d{4}\-\d{2}\-\d{2}\-\d{2}\-\d{2}\-\d{2},]','',words)
+	new_words = re.sub(r'https://t.co/\w+', '', new_words)
+	new_words = re.sub(r'@[a-z0-9\_]+','',new_words)
+	final_list = re.findall(r"[^rt](?!'.*')\b[\w']+\b", new_words)
+	print(final_list)
