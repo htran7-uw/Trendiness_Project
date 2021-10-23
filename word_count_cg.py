@@ -1,10 +1,15 @@
 import re
 import pandas as pd
 import numpy as np 
+import argparse  
+
+parser = argparse.ArgumentParser()
+parser.add_argument('filename')
+args = parser.parse_args()
 
 final=[]
 
-with open('Tweets.txt') as file:
+with open(args.filename) as file:
 	lines = file.readlines()
 
 tweets = pd.DataFrame(lines)
@@ -31,8 +36,8 @@ for i, words in enumerate(tweets[0]):
 	for i, word in enumerate(final_list):
 		final_list[i] = str(word.strip())
 	final.extend(final_list)
-	
 
+'''Compute unique words and their corresponding frequencies'''
 keys, values = np.unique(final, return_counts=True)
 values=values.tolist()
 keys=keys.tolist()
