@@ -38,7 +38,7 @@ txt_file = open('Tweets.txt','w')
 
 def create_url():
     return "https://api.twitter.com/2/tweets/sample/stream?tweet.fields=created_at,lang"
-
+#"https://api.twitter.com/2/tweets/sample/stream?tweet.fields=created_at,lang"
 def bearer_oauth(r):
     '''
     Method required by bearer token authentication
@@ -53,7 +53,7 @@ def connect_to_endpoint(url):
     if response.status_code != 200:
         for x in range(0, 6):
             print('Attempt #' + str(x))
-            status = r.status_code
+            status = response.status_code
             if status != 200:
                 print('The error code is still ' + str(status) + '.')
                 seconds = 2
@@ -62,7 +62,7 @@ def connect_to_endpoint(url):
             else:
                 print('Wait it actually worked!')
                 break
-            print('Looks like we still get an error code of', str(status), "You might have the wrong URL inserted.")
+        print('Looks like we still get an error code of', str(status), "You might have the wrong URL inserted.")
 
     for response_line in response.iter_lines():
         if response_line:
