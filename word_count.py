@@ -5,6 +5,8 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('filename')
+parser.add_argument('word',type=str,help='Display frequency of the user input')
+parser.add_argument("flag", nargs="?", default=" ")
 args = parser.parse_args()
 
 final=[]
@@ -37,11 +39,28 @@ for i, words in enumerate(tweets[0]):
 		final_list[i] = str(word.strip())
 	final.extend(final_list)
 
+phrase=[final[i]+ " " + final[i+1] for i in range(len(final)-1)]
+#print(phrase)
+
 '''Compute unique words and their corresponding frequencies'''
 keys, values = np.unique(final, return_counts=True)
 values=values.tolist()
 keys=keys.tolist()
 
+keys_phrase, values_phrase = np.unique(phrase, return_counts=True)
+values_phrase=values_phrase.tolist()
+keys_phrase=keys_phrase.tolist()
+
 res = {keys[i]: values[i] for i in range(len(keys))}
-for count in res.items():
-	print(count)
+for key,value in res.items():
+	if args.flag==" ":
+		if key==args.word:
+			print("The word '"+ args.word + "' occurs " + str(value)  + " times in " + args.filename)
+
+res_phrase = {keys_phrase[i]: values_phrase[i] for i in range(len(keys_phrase))}
+for key,value in res_phrase.items():
+	if key==args.word + " " + args.flag:
+		print("The phrase '"+ args.word + ' ' + args.flag + "' occurs " + str(value)  + " times in " + args.filename)
+
+if args.word != res.keys():
+	print("The input does not exist in Tweets.txt")
