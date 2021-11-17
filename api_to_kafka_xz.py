@@ -56,7 +56,7 @@ class MaxStream(tweepy.streaming.Stream):
     
 	
     def start(self, keyword_list):
-        self.filter(track=keyword_list, languages=['en'])
+        self.sample(languages=['en'])
            
 
 
