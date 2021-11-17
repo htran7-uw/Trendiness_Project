@@ -55,7 +55,7 @@ class MaxStream(tweepy.streaming.Stream):
     	    send_to_kafka(new_text)
     
 	
-    def start(self, keyword_list):
+    def start(self):
         self.sample(languages=['en'])
            
 
@@ -64,5 +64,5 @@ class MaxStream(tweepy.streaming.Stream):
 
 if __name__ =="__main__":
 	stream = MaxStream(consumer_key, consumer_secret, access_token, access_token_secret)
-	stream.start(['None'])
+	stream.start()
 
