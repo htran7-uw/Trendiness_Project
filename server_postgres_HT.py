@@ -88,7 +88,7 @@ def connect_to_endpoint(url):
                 print('Wait it actually worked!')
                 break
         print('Looks like we still get an error code of', str(status), "You might have the wrong URL inserted.")
-
+    print('Adding tweets... terminate the script to stop the program.')
     for response_line in response.iter_lines():
         if response_line:
             json_response = json.loads(response_line)
@@ -109,7 +109,7 @@ def connect_to_endpoint(url):
                 new_words = re.sub(r'https://t.co/\w+', '', new_words)
                 new_words = re.sub(r'@[a-z0-9\_]+', '', new_words)
                 final_list = re.findall(r"[^rt](?!'.*')\b[\w']+\b", new_words)
-                #print(final_list)
+                final_list = [final_list[i].strip() for i in range(0,len(final_list))]
                 for i in final_list:
                     '''Insert words into word table'''
                     word_query = '''INSERT INTO words VALUES (%s, %s)'''
@@ -117,7 +117,7 @@ def connect_to_endpoint(url):
                     connection.commit()
 
                     '''Insert phrases into phrase table'''
-                phrase = [final_list[i]+ "" + final_list[i+1] for i in range(len(final_list)-1)]
+                phrase = [final_list[i]+ " " + final_list[i+1] for i in range(len(final_list)-1)]
                 for x in phrase:
                     phrase_query = '''INSERT INTO phrases VALUES (%s, %s)'''
                     cursor.execute(phrase_query, (timestamp_central, x))
