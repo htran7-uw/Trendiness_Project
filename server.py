@@ -5,6 +5,7 @@ import pandas as pd
 import datetime
 import argparse
 import time
+import pytz
 
 #API Key = xWbz9qoquYQ2DdIXwJ6yNJq1G
 #API Key Secret = 1SiQLpVlvTsnlKwHBqfnejuHLBGZUUUdoCFp3GpVytOMmYeLWU
@@ -71,7 +72,9 @@ def connect_to_endpoint(url):
             if json_response['data']['lang'] == 'en':
                 timestamp = json_response['data']['created_at']
                 timestamp = datetime.datetime.strptime(timestamp,'%Y-%m-%dT%H:%M:%S.%f%z')
-                timestamp = datetime.datetime.strftime(timestamp, '%Y-%m-%d-%H-%M-%S')
+                central = pytz.timezone('US/Central')
+                timestamp_central = timestamp.astimezone(central)
+                timestamp = datetime.datetime.strftime(timestamp_central, '%Y-%m-%d-%H-%M-%S')
                 text = json_response['data']['text']
                 each_tweet = [timestamp,',', text, '\n']
                 txt_file.writelines(each_tweet)
@@ -87,7 +90,9 @@ def extract_json_file(file):
     if json_response['data']['lang'] == 'en':
         timestamp = json_response['data']['created_at']
         timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%f%z')
-        timestamp = datetime.datetime.strftime(timestamp, '%Y-%m-%d-%H-%M-%S')
+        central = pytz.timezone('US/Central')
+        timestamp_central = timestamp.astimezone(central)
+        timestamp = datetime.datetime.strftime(timestamp_central, '%Y-%m-%d-%H-%M-%S')
         text = json_response['data']['text']
         each_tweet = [timestamp, ',', text, '\n']
         txt_file.writelines(each_tweet)
