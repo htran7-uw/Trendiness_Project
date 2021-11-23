@@ -40,7 +40,7 @@ for i, text in enumerate(tweets[0]):
         else:
              words.append(r.text.strip().lower())
 
-    fina.extend(words)
+    final.extend(words)
     phrase.extend(phrases)#print(phrase)
 
 '''Compute unique words and their corresponding frequencies'''
