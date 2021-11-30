@@ -1,6 +1,7 @@
 import psycopg
-from datetime import datetime
+import datetime
 import argparse
+import time
 
 conn = psycopg.connect('dbname= trendy user = gb760')
 cur = conn.cursor()
@@ -11,97 +12,155 @@ parser.add_argument("flag", nargs="?", default=" ")
 args = parser.parse_args()
 
 
-def get_unique_words():  # get the unique vocab size from the word database
-    query = '''
-    SELECT date_trunc('minute',time) as minute, count(DISTINCT word) as unique_words                           
-    FROM words
-    WHERE date_trunc('minute',time)  = date_trunc('minute', now()::timestamp) group by minute;
-    '''
+def get_results(query):
     while True:
         try:
-            unique_word_count = cur.execute(query).fetchone()[1]
-            assert isinstance(unique_word_count, int)
-            return unique_word_count
+            results = cur.execute(query).fetchone()[1] #the query needs to have the time and count of word/phrase column. Collect the 2nd item of the tuple
+            assert isinstance(results, int)
+            return results
         except TypeError as err:
-            print(
-                f"An error was returned, which means you either don't have any words in the current minute or the server script is not running")
-            print(f"This is the error: {err}")
-            break
+            for x in range(11):
+                print(f"Attempt # {x}")
+                seconds = 2
+                print("Let's wait", seconds, "seconds and try again")
+                time.sleep(seconds)
+                if x == 10:
+                    print("We can't find the word/phrase in sql to compute the score so we're exiting the script.")
+                continue
+        exit()
 
+def compute_ts(wc_curr, unique_curr, total_curr, wc_prev, unique_prev, total_prev):
+    word_list = [args.word.strip().lower(), args.flag.strip().lower()]
+    #print(word_list)
+    w_or_p = ' '.join(word_list)
+    curr_min = datetime.datetime.now().minute
+    initial_datetime = datetime.datetime.now()
+    one_minute = datetime.timedelta(minutes=1)
+    final_datetime = initial_datetime - one_minute
+    prev_min = final_datetime.minute
 
-# V = get_unique_words()
+    prob_curr = (1 + wc_curr)/(unique_curr + total_curr)
+    prob_prev = (1 + wc_prev)/(unique_prev + total_prev)
+    score = prob_curr/prob_prev
+    print(f'The probability of {w_or_p}at current minute {curr_min}: {prob_curr}')
+    print(f'The probability of {w_or_p}at previous minute {prev_min}: {prob_prev}')
+    print(f'The trendiness score of {w_or_p}is: {score}')
+    if score > 1:
+        print(f'It looks like {w_or_p}is trending')
+    else:
+        print(f"It doesn't look like {w_or_p}is trending")
+    return score
+def main():
+    '''check if it is a word or a phrase by the flag option'''
+    word_list = [str(args.word.strip().lower()), str(args.flag.strip().lower())]
+    #print(word_list)
+    #print(args.word)
+    #print(args.flag)
+    #print(word_list)
+    if args.flag == " ": #check if it's a word or phrase
+        print('Searching in words table...')
+        '''get word variables at the CURRENT minute'''
+        #get # of times word was seen in current minute
+        min_var = "date_trunc('minute',time)"
+        word = args.word.strip().lower()
+        q1 = f"Select {min_var} as minute, count(*) from words where word = '{word}' and {min_var} = date_trunc('minute',now()::timestamp) group by minute;"
+        wc_curr = get_results(q1)
 
-def get_unique_phrases():  # get the unique vocab size from the phrase database
-    query = '''
-    SELECT date_trunc('minute',time) as minute, count(DISTINCT phrase) as unique_phrases                         
-    FROM phrases
-    WHERE date_trunc('minute',time)  = date_trunc('minute', now()::timestamp) group by minute;
-    '''
-    while True:
-        try:
-            unique_phrase_count = cur.execute(query).fetchone()[1]
-            assert isinstance(unique_phrase_count, int)
-            return unique_phrase_count
-        except TypeError as err:
-            print(
-                f"An error was returned, which means you either don't have any words in the current minute or the server script is not running")
-            print(f"This is the error: {err}")
-            break
+        #get # of unique words in current minute
+        q2 = f'''
+            SELECT {min_var} as minute, count(DISTINCT word) as unique_words
+            FROM words
+            WHERE {min_var} = date_trunc('minute', now()::timestamp) group by minute;
+            '''
+        num_unique_words_current = get_results(q2)
 
-
-def get_wc():  # get the word count of the user's input regardless of word or phrase
-    min_var = "date_trunc('minute',time)"
-    word = str("'" + args.word + "'")
-    query = f"Select {min_var} as minute, count(*) from words where word = {word} and {min_var} = date_trunc('minute',now()::timestamp) group by minute;"
-    while True:
-        try:
-            wc = cur.execute(query).fetchone()[1]  # get the count not the time
-            return wc
-        except TypeError as err:
-            print(
-                f"An error was returned, which means you either don't have any words in the current minute or the server script is not running")
-            print(f"This is the error: {err}")
-            break
-
-
-def get_all_words():  # get all words at the current minute
-    query = '''
-        SELECT date_trunc('minute',time) as minute, count(*) as unique_words                           
+        #get total # of words in current minute
+        q3 = f'''
+        SELECT {min_var} as minute, count(*) as unique_words
         FROM words
-        WHERE date_trunc('minute',time)  = date_trunc('minute', now()::timestamp) group by minute;
+        WHERE {min_var}  = date_trunc('minute', now()::timestamp) group by minute;
         '''
-    while True:
-        try:
-            wc_all = cur.execute(query).fetchone()[1]
-            assert isinstance(wc_all, int)
-            return wc_all
-        except TypeError as err:
-            print(
-                f"An error was returned, which means you either don't have any words in the current minute or the server script is not running")
-            print(f"This is the error: {err}")
-            break
+        total_words_current = get_results(q3)
 
+        '''get word variables at the previous minute'''
+        #get # of times word was seen in previous minute
+        min_var = "date_trunc('minute',time)"
+        word = args.word.strip().lower()
+        q1 = f"Select {min_var} as minute, count(*) from words where word = '{word}' and {min_var} = date_trunc('minute', now()::timestamp) - interval '1 minute' group by minute;"
+        wc_prev = get_results(q1)
+        #print(wc_previous)
 
-def get_all_phrases():  # get all phrases at the current minute
-    query = '''
-        SELECT date_trunc('minute',time) as minute, count(*) as unique_words                           
-        FROM phrases
-        WHERE date_trunc('minute',time)  = date_trunc('minute', now()::timestamp) group by minute;
-        '''
-    while True:
-        try:
-            pc_all = cur.execute(query).fetchone()[1]
-            assert isinstance(pc_all, int)
-            return pc_all
-        except TypeError as err:
-            print(
-                f"An error was returned, which means you either don't have any words in the current minute or the server script is not running")
-            print(f"This is the error: {err}")
-            break
+        #get unique words in previous minute
+        q2 = f'''   SELECT {min_var} as minute, count(DISTINCT word) as unique_words
+                    FROM words
+                    WHERE {min_var} = date_trunc('minute', now()::timestamp) - interval '1 minute' group by minute;
+              '''
+        num_unique_words_prev = get_results(q2)
 
+        #get total number of words in previous minute
+        q3 = f'''
+                SELECT {min_var} as minute, count(*) as unique_words
+                FROM words
+                WHERE {min_var} = date_trunc('minute', now()::timestamp) - interval '1 minute' group by minute;
+                '''
+        total_words_prev = get_results(q3)
 
-word_count = 1 + get_wc()
-V = get_unique_words()
-total_phrases = V + get_all_phrases()
-score = word_count / total_phrases
-print(score)
+        #get the trendiness score
+        compute_ts(wc_curr = wc_curr, unique_curr= num_unique_words_current, total_curr = total_words_current,
+                   wc_prev= wc_prev, unique_prev = num_unique_words_prev, total_prev = total_words_prev)
+    else:
+        print('Searching in phrases table...')
+        '''get phrase variables at the CURRENT minute'''
+        min_var = "date_trunc('minute',time)"
+        word_list = [str(args.word.strip().lower()),str(args.flag.strip().lower())]
+        phrase = ' '.join(word_list)
+
+        # get # of times phrase was seen in current minute
+        q1 = f"Select {min_var} as minute, count(*) from phrases where phrase = '{phrase}' and {min_var} = date_trunc('minute',now()::timestamp) group by minute;"
+        pc_curr = get_results(q1)
+
+        # get # of unique phrases in current minute
+        q2 = f'''
+            SELECT {min_var} as minute, count(DISTINCT phrase) as unique_phrases
+            FROM phrases
+            WHERE {min_var} = date_trunc('minute', now()::timestamp) group by minute;
+            '''
+        num_unique_phrases_current = get_results(q2)
+
+        # get total # of words in current minute
+        q3 = f'''
+                SELECT {min_var} as minute, count(*) as total_phrases
+                FROM phrases
+                WHERE {min_var}  = date_trunc('minute', now()::timestamp) group by minute;
+                '''
+        total_phrases_current = get_results(q3)
+
+        '''get phe variables at the previous minute'''
+        # get # of times phrase was seen in previous minute
+        min_var = "date_trunc('minute',time)"
+        word = args.word.strip().lower()
+        q1 = f"Select {min_var} as minute, count(*) from phrases where phrase = '{phrase}' and {min_var} = date_trunc('minute', now()::timestamp) - interval '1 minute' group by minute;"
+        pc_prev = get_results(q1)
+        # print(wc_previous)
+
+        # get unique phrases in previous minute
+        q2 = f'''   
+                SELECT {min_var} as minute, count(DISTINCT phrase) as unique_phrases
+                FROM phrases
+                WHERE {min_var} = date_trunc('minute', now()::timestamp) - interval '1 minute' group by minute;
+              '''
+        num_unique_phrases_prev = get_results(q2)
+
+        # get total number of phrases in previous minute
+        q3 = f'''
+            SELECT {min_var} as minute, count(*) as total_phrases
+            FROM phrases
+            WHERE {min_var} = date_trunc('minute', now()::timestamp) - interval '1 minute' group by minute;
+              '''
+        total_phrases_prev = get_results(q3)
+
+        # get the trendiness score
+        compute_ts(wc_curr=pc_curr, unique_curr=num_unique_phrases_current, total_curr=total_phrases_current,
+                           wc_prev=pc_prev, unique_prev=num_unique_phrases_prev, total_prev=total_phrases_prev)
+if __name__ == '__main__':
+    main()
