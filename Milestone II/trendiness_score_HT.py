@@ -19,18 +19,19 @@ def get_results(query):
             assert isinstance(results, int)
             return results
         except TypeError as err:
-            for x in range(11):
+            for x in range(3):
                 print(f"Attempt # {x}")
                 seconds = 2
                 print("Let's wait", seconds, "seconds and try again")
                 time.sleep(seconds)
-                if x == 10:
-                    print("We can't find the word/phrase in sql to compute the score so we're exiting the script.")
-                continue
-        exit()
+                if x == 2:
+                    print("We can't find the word/phrase at the specified minute in sql so we're giving this query a result of 0")
+                results = 0
+            return results
+
 
 def compute_ts(wc_curr, unique_curr, total_curr, wc_prev, unique_prev, total_prev):
-    word_list = [args.word.strip().lower(), args.flag.strip().lower()]
+    word_list = [args.word.lower().strip(), args.flag.lower().strip()]
     #print(word_list)
     w_or_p = ' '.join(word_list)
     curr_min = datetime.datetime.now().minute
@@ -38,18 +39,14 @@ def compute_ts(wc_curr, unique_curr, total_curr, wc_prev, unique_prev, total_pre
     one_minute = datetime.timedelta(minutes=1)
     final_datetime = initial_datetime - one_minute
     prev_min = final_datetime.minute
-
     prob_curr = (1 + wc_curr)/(unique_curr + total_curr)
     prob_prev = (1 + wc_prev)/(unique_prev + total_prev)
     score = prob_curr/prob_prev
-    print(f'The probability of {w_or_p}at current minute {curr_min}: {prob_curr}')
-    print(f'The probability of {w_or_p}at previous minute {prev_min}: {prob_prev}')
-    print(f'The trendiness score of {w_or_p}is: {score}')
-    if score > 1:
-        print(f'It looks like {w_or_p}is trending')
-    else:
-        print(f"It doesn't look like {w_or_p}is trending")
+    print(f'The probability of "{w_or_p}" at current minute {curr_min}: {prob_curr}')
+    print(f'The probability of "{w_or_p}" at previous minute {prev_min}: {prob_prev}')
+    print(f'The trendiness score of "{w_or_p}" is: {score}')
     return score
+
 def main():
     '''check if it is a word or a phrase by the flag option'''
     word_list = [str(args.word.strip().lower()), str(args.flag.strip().lower())]
@@ -62,7 +59,8 @@ def main():
         '''get word variables at the CURRENT minute'''
         #get # of times word was seen in current minute
         min_var = "date_trunc('minute',time)"
-        word = args.word.strip().lower()
+        word = args.word.lower().strip()
+        print(f'Looking for number of times "{word}" was seen in the current minute')
         q1 = f"Select {min_var} as minute, count(*) from words where word = '{word}' and {min_var} = date_trunc('minute',now()::timestamp) group by minute;"
         wc_curr = get_results(q1)
 
@@ -84,6 +82,7 @@ def main():
 
         '''get word variables at the previous minute'''
         #get # of times word was seen in previous minute
+        print(f'Looking for # of times "{word}" was seen in the previous minute')
         min_var = "date_trunc('minute',time)"
         word = args.word.strip().lower()
         q1 = f"Select {min_var} as minute, count(*) from words where word = '{word}' and {min_var} = date_trunc('minute', now()::timestamp) - interval '1 minute' group by minute;"
@@ -116,6 +115,7 @@ def main():
         phrase = ' '.join(word_list)
 
         # get # of times phrase was seen in current minute
+        print(f'Looking for number of times "{phrase}" was seen in the current minute')
         q1 = f"Select {min_var} as minute, count(*) from phrases where phrase = '{phrase}' and {min_var} = date_trunc('minute',now()::timestamp) group by minute;"
         pc_curr = get_results(q1)
 
@@ -137,6 +137,7 @@ def main():
 
         '''get phe variables at the previous minute'''
         # get # of times phrase was seen in previous minute
+        print(f'Looking for number of times "{phrase}" was seen in the previous minute')
         min_var = "date_trunc('minute',time)"
         word = args.word.strip().lower()
         q1 = f"Select {min_var} as minute, count(*) from phrases where phrase = '{phrase}' and {min_var} = date_trunc('minute', now()::timestamp) - interval '1 minute' group by minute;"
