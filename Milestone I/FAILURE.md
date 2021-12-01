@@ -48,7 +48,7 @@ Process finished with exit code 1
 
 
 
-2. Pausing the script could present and issue. This is what is displayed after the script has been runnign for 3 minutes, has not been completed yet, and then the stop button is pressed. 
+2. Pausing the script could present an issue. This is what is displayed after the script has been running for 3 minutes, has not been completed yet, and then the stop button is pressed. 
  
 Somebody paused the script! 
  Re-run the script to continue. However, you will be overwriting your file if you do. 
