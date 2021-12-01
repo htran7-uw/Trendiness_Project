@@ -64,7 +64,6 @@ Process finished with exit code 0
 We replaced the Tweets.txt file so you do not run out of disk space.
 200
 
-  For Hao:
   
  4. If Exit from PyCharm is attempted while Main is running, whether that be through 'Terminate' or 'Disconnect' or computer shutting down the script does stop -- however we never showcase that previous "Somebody paused the script" code.
  
