@@ -22,11 +22,10 @@ cursor = connection.cursor()
 
 
 def save_to_db(ts, text):
-    #save to database
     timestamp_str = datetime.datetime.strftime(datetime.datetime.fromtimestamp(ts), '%Y-%m-%d-%H-%M-%S')
     # save timestamp_str and text to database
-    query = '''INSERT INTO base VALUES (%s, %s, %s)'''
-    cursor.execute(query, (ts, timestamp_str, text))
+    query = '''INSERT INTO base VALUES (%s, %s)'''
+    cursor.execute(query, (timestamp_str, text))
     connection.commit()
 
 
