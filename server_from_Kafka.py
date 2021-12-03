@@ -43,6 +43,7 @@ def process_data(rev_dict):
 
 def run():
     for m in consumer:
+        print('-- Received msg from partition %s, offset %s' % (m.partition, m.offset))
         rev_data = m.value
         try:
             rev_obj = json.loads(rev_data)
