@@ -16,6 +16,7 @@ Assuming host is 'gb760', run the following commands in terminal
 9) select * from base <-- You should get 0 rows 
 
 Milestone 3 - XZ
+
 #step 0
 please make sure the following files are in the same directory:
 clean_text_for_m3.py
