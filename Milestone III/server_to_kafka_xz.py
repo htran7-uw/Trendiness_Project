@@ -1,17 +1,18 @@
 import tweepy
 import json
-import spacy
+import time
 import re
-from time import sleep
-from json import dumps
 from kafka import KafkaProducer
 from keys import *
+from clean_text import clean_text
+from kafka_conf import KAFKA_TOPIC, KAFKA_HOSTS
+
+producer = KafkaProducer(bootstrap_servers=KAFKA_HOSTS, value_serializer=lambda x: json.dumps(x).encode('utf-8'))
 
 
 def send_data_to_kafka(text):
     print('-- producer receive: ', len(text), text[:50])
     send_data = {
-        # we record the time at producer, because, after kafka, we may have seconds - minutes delay
         # we send 'int' not 'str' to consumer, because int is smaller
         'timestamp': int(time.time()),
         'text': text,
@@ -31,8 +32,6 @@ class MaxStream(tweepy.streaming.Stream):
     def process_data(self,raw_data):
         data = json.loads(raw_data)
         text_data = data.get('text', '')
-        #print for debug
-        print(text_data)
         if not text_data:
             return
         else:
