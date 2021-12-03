@@ -14,10 +14,13 @@ consumer = KafkaConsumer(
     bootstrap_servers=KAFKA_HOSTS,
     enable_auto_commit=True,
     group_id='tweet-group-db',  # any name is OK
+    heartbeat_interval_ms=1000,
+    auto_commit_interval_ms=1000,
+    session_timeout_ms=10000,
     value_deserializer=lambda x: x.decode('utf-8'))
 
 
-connection = psycopg2.connect("dbname=trendy user=gb760 password=gb760")
+connection = psycopg2.connect("dbname=trendy user=gb760")
 cursor = connection.cursor()
 
 
