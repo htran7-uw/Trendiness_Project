@@ -14,3 +14,38 @@ Assuming host is 'gb760', run the following commands in terminal
 7) \c trendy <-- go to trendy database
 8) \dt  <-- This should show your tables
 9) select * from base <-- You should get 0 rows 
+
+Milestone 3 - XZ
+#step 0
+please make sure the following files are in the same directory:
+clean_text_for_m3.py
+keys_for_m3.py
+trend_score_for_m3.py
+word_count_for_m3.py
+server_to_kafka_xz.py
+server_from_kafka.py
+trendiness_kafka.py
+
+#step 1 start kafka server
+sudo systemctl start kafka
+sudo systemctl status kafka
+
+#step 2 start kafka producer in window #1
+python server_to_kafka_xz.py
+
+#step 3 start kafka consumer B in window #2
+python server_from_kafka.py
+
+#step 4 check if the data is saved into database
+sudo -u postgres psql
+\c trendy
+select * from base order by t desc limit 10;
+\q
+
+#step 5 start kafka consumer C in window #3
+#we count trendiness score for the word "this"
+python trendiness_kafka.py --word=this --use_nlp=1 --use_hash=1
+#the script returns the trendiness score for the word "this" every 10 sec - this can be changed in code
+
+
+
