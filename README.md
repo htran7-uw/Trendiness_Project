@@ -59,6 +59,8 @@ python server_from_kafka.py
 #we count trendiness score for the word "this"
 python trendiness_kafka.py --word=this --use_nlp=1 --use_hash=1
 #the script returns the trendiness score for the word "this" every 10 sec - this can be changed in code
+#now we count trendiness score for the phrase "Good Morning"
+python trendiness_kafka.py --word="Good Morning" --use_nlp=1 --use_hash=1
 
 **Kafka Partition**
 
