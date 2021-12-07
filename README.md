@@ -15,9 +15,11 @@ Part C- this will display all the unique words in Tweets.txt alphabetically and 
 
 3) python vobulary_size.py Tweets.txt
 
-Milestone 2 Part A - HT
-Create database 
-Assuming host is 'gb760', run the following commands in terminal 
+**Milestone 2**
+
+Part A: Create database 'trendy' and tables within to store streamed tweets. 
+
+Assuming host is 'gb760', run the following commands in terminal: 
 1) psql
 2) create database trendy;
 3) \q
@@ -27,6 +29,26 @@ Assuming host is 'gb760', run the following commands in terminal
 7) \c trendy <-- go to trendy database
 8) \dt  <-- This should show your tables
 9) select * from base <-- You should get 0 rows 
+
+Part B: Stream tweets from Twitter API and store them in the tables created previously.
+
+1) python server_postgres_HT.py
+2) Ctrl+C to stop
+
+Part C: Takes a word or phrase as an input and calculates its count in the current minute from schema. 
+
+1) python word_count_postgres_HT.py with desired word or phrase in quotes. Ex: python word_count_postgres_HT.py 'covid'
+2) server_postgres_HT.py must be running simultaneously
+
+Part D: Counts number of unique words in current minute from schema. 
+
+1) python vocabulary_size_postgres_HT.py
+2) server_postgres_HT.py must be running simultaneously
+
+Part E: Takes a word or phrase as an input, then calculates and prints trendiness score and probability of being in the previous minute and current minute. 
+
+1) python trendiness_score_HT.py 'covid' (to calculate trendiness of covid)
+2) server_postgres_HT.py must be running simultaneously
 
 **Milestone 3**
 
