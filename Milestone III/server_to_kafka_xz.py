@@ -10,7 +10,7 @@ from kafka_conf import KAFKA_TOPIC, KAFKA_HOSTS
 producer = KafkaProducer(bootstrap_servers=KAFKA_HOSTS, value_serializer=lambda x: json.dumps(x).encode('utf-8'))
 
 
-def send_data_to_kafka(text):
+def send_to_kafka(text):
     print('-- producer receive: ', len(text), text[:50])
     send_data = {
         # we send 'int' not 'str' to consumer, because int is smaller
