@@ -2,6 +2,11 @@
 UW-Madison GB760 Twitter Trendiness Project
 Group Members: Matt Plantz, Keith Hines, Hao Tran, Chelsi Gondalia, Logan Butson, Daniel Waller, Xinyuan Zhang
 
+Milestone 1
+Part A- "python server.py" - this will start reading tweets from Twitter API sampled stream and stores them in a text file- Tweets.txt, use Ctrl+C to stop. 
+Part B- "python word_count.py Tweets.txt is" - this will compute the frequency of the word "is" in Tweets.txt, you may replace "is" with a word or phrase of your choice. 
+Part C- "python vobulary_size.py Tweets.txt"- this will display all the unique words in Tweets.txt alphabetically and compute the size of it. 
+
 Milestone 2 Part A - HT
 Create database 
 Assuming host is 'gb760', run the following commands in terminal 
