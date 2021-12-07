@@ -120,3 +120,4 @@ if __name__ =="__main__":
 
     is_hash = int(args.use_hash) if args.use_hash else 0
     is_nlp = int(args.use_nlp) if args.use_nlp else 0
+    run(args.words, is_hash, is_nlp)
