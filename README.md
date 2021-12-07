@@ -8,9 +8,11 @@ Part A- this will start reading tweets from Twitter API sampled stream and store
 1) python server.py 
 
 Part B- this will compute the frequency of the word "is" in Tweets.txt, you may replace "is" with a word or phrase of your choice. 
+
 2) python word_count.py Tweets.txt is
 
 Part C- this will display all the unique words in Tweets.txt alphabetically and compute the size of it. 
+
 3) python vobulary_size.py Tweets.txt
 
 Milestone 2 Part A - HT
