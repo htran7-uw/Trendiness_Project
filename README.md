@@ -2,7 +2,7 @@
 UW-Madison GB760 Twitter Trendiness Project
 Group Members: Matt Plantz, Keith Hines, Hao Tran, Chelsi Gondalia, Logan Butson, Daniel Waller, Xinyuan Zhang
 
-Milestone 1
+**Milestone 1**
 
 Part A- this will start reading tweets from Twitter API sampled stream and stores them in a text file- Tweets.txt, use Ctrl+C to stop. 
 1) python server.py 
